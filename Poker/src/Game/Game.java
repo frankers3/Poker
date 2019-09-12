@@ -26,6 +26,7 @@ public class Game {
 	public boolean dealFlop() {
 		for(int i =0; i < 3; i++)	{
 		communityCards.add(gameDeck.getCard());
+		
 		}
 		if(communityCards.size() ==3 ) {
 			return true;
@@ -56,24 +57,28 @@ public class Game {
 	public int calculatepreflopOdds()	{
 		Card[] myhand;
 		Card[] theirhand;
+		if(myCards.get(0).equals(theirCards.get(0)) || myCards.get(1).equals(theirCards.get(0)) ||
+		   myCards.get(0).equals(theirCards.get(1)) || myCards.get(1).equals(theirCards.get(1)))	{
+			return -1;
+		}
 		double pos = 0;
 		double neg = 0; 
 		gameDeck.addCardsToDeck();
-		System.out.print(gameDeck.cards.size());
-		for(Card firstcard : gameDeck.cards) {
-			System.out.println(firstcard.getVal());
-			for(Card secondcard : gameDeck.cards) {
-				if(firstcard != secondcard) {
+		
+		for(int i0 = 0; i0 < gameDeck.cards.size() -4; i0++) {
+			
+			for(int i1 = i0 + 1; i1 < gameDeck.cards.size() -3; i1++) {
 				
-				for(Card thirdcard : gameDeck.cards) {
-					if(firstcard != thirdcard && secondcard != thirdcard) {
-					for(Card fourthcard : gameDeck.cards) {
-						if(firstcard != fourthcard && secondcard != fourthcard && thirdcard != fourthcard)
-						for(Card fifthcard : gameDeck.cards) {
-							if(firstcard != fifthcard && secondcard != fifthcard && thirdcard != fifthcard && fourthcard != fifthcard)	{
+				
+				for(int i2 = i1 + 1; i2 < gameDeck.cards.size() - 2; i2++) {
+					for(int i3 = i2 + 1; i3 < gameDeck.cards.size() - 1; i3++) {
+						for(int i4 = i3 + 1; i4 < gameDeck.cards.size(); i4++) {
+						
+						
+							
 								//every possible community card
-								myhand = new Card[] {myCards.get(0),myCards.get(1),firstcard,secondcard,thirdcard,fourthcard,fifthcard};
-								theirhand = new Card[] {theirCards.get(0),theirCards.get(1),firstcard,secondcard,thirdcard,fourthcard,fifthcard};
+								myhand = new Card[] {myCards.get(0),myCards.get(1),gameDeck.cards.get(i0),gameDeck.cards.get(i1),gameDeck.cards.get(i2),gameDeck.cards.get(i3),gameDeck.cards.get(i4)};
+								theirhand = new Card[] {theirCards.get(0),theirCards.get(1),gameDeck.cards.get(i0),gameDeck.cards.get(i1),gameDeck.cards.get(i2),gameDeck.cards.get(i3),gameDeck.cards.get(i4)};
 								HandCalc mybesthand = new HandCalc(myhand);
 								HandCalc theirbesthand = new HandCalc(theirhand);
 								int val = mybesthand.isBetter(theirbesthand);
@@ -84,24 +89,22 @@ public class Game {
 								}else {
 									pos+= 0.5;
 									neg+= 0.5;
+										
 								}
+							
+								
 							}
 							
 							
-						}	
-						
-					}	
 					}
-				}	
 				}
+			
 			}
-			
-			
 		}
-		System.out.print(pos);
-		System.out.print(neg);
+		//System.out.print(pos);
+		//System.out.print(neg);
 		int rate = (int) (pos/(pos + neg) * 10000);
-		System.out.print(rate);
+		System.out.println(rate);
 		return rate;
 	}
 	

@@ -7,7 +7,14 @@ public class Deck {
 	DeckState current_state = new EmptyDeck();
 	public ArrayList<Card> cardsOutOfDeck = new ArrayList<Card>();
 	public Deck(ArrayList<Card> cards)	{
+		if(cards == null)	{
+			return;
+		}
 		this.cardsOutOfDeck.addAll(cards);
+	}
+	public Deck(Card card1, Card card2)	{
+		this.cardsOutOfDeck.add(card1);
+		this.cardsOutOfDeck.add(card2);
 	}
 	public boolean addCardsToDeck()	{
 			//create the deck by adding cards 
@@ -50,7 +57,7 @@ public class Deck {
 				}
 			}
 		}
-		System.out.println(cards);
+		
 		return true;	
 	}
 	
@@ -68,6 +75,7 @@ public class Deck {
 	}
 	
 	public boolean startHand() {
+		
 			return true;
 	}
 		
@@ -81,10 +89,28 @@ public static int getRandomInteger(int min, int max){
     return x;
 }
 public Card getCard() {
-	if(current_state.getState() != "Dealing") {
-			return null;
-	}
+	
 	return cards.remove(0);
+}
+
+public boolean isInDeck(char suit, int val)	{
+	for(Card checker : cards)	{
+		if(checker.suit == suit && checker.val == val)	{
+			return true;
+		}
+	}
+	return false;
+}
+
+public void removeCardfromDeck(char suit, int val)	{
+	if(isInDeck(suit,val))	{
+		for(Card checker : cards)	{
+			if(checker.suit == suit && checker.val == val)	{
+				cards.remove(checker);
+				return;
+			}
+		}
+	}
 }
 		
 	

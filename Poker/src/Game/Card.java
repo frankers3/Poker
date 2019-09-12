@@ -18,6 +18,13 @@ public class Card {
 	public Integer getVal() {
 		return val;
 	}
+	
+	public boolean equals(Card card)	{
+		if(card.suit == this.suit && card.val == this.val)	{
+			return true;
+		}
+		return false;
+	}
 }
 
 
