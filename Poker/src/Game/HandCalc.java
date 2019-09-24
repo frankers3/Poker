@@ -12,6 +12,7 @@ public class HandCalc {
 	public int handType;
 	public int handVal;
 	private char flush_suit;
+	private char flush_draw_suit;
 	private int straightDraw = -1;
 	public HandCalc(Card[] table_cards,Card[] hand){
 		if(table_cards.length < 3 || hand.length != 2) {
@@ -29,6 +30,20 @@ public class HandCalc {
 		Collections.sort(this.cards,new CustomComparator());
 		Collections.sort(this.hand,new CustomComparator());
 		Collections.sort(this.table,new CustomComparator());
+	}
+	
+	public HandCalc(ArrayList <Card> table){
+		if(table.size() < 3) {
+			return;
+		}
+		
+		for(Card i : table) {
+			this.cards.add(i);
+			
+		}
+		
+		Collections.sort(this.cards,new CustomComparator());
+		
 	}
 	
 	public int findStraight()	{
@@ -328,8 +343,9 @@ public class HandCalc {
 	
 	public boolean flushDraw()	{
 		int[] suit;
+		char map[];
 		suit = new int[] {0,0,0,0};
-		
+		map = new char[] {'H','D','C','S'};
 		for(Card i : cards) {
 			if(i.suit == 'H')	{
 				suit[0]++;
@@ -345,6 +361,7 @@ public class HandCalc {
 		for(int i = 0; i < 4; i++) {
 			//there is a flush draw
 			if(suit[i] == 4) {
+				flush_draw_suit = map[i];
 				return true;
 			}
 		}
@@ -372,6 +389,13 @@ public boolean topPair()	{
 			return true;
 		}
 	}
+	if(handType == 2)	{
+		if(hand.get(0).getVal() == table.get(table.size() -1).getVal() || hand.get(1).getVal() == table.get(table.size() -1).getVal())	{
+			if(this.tablePair() == "Pair")	{
+				return true;
+			}
+		}
+	}
 		
 	return false;
 }
@@ -381,6 +405,9 @@ public boolean midPair()	{
 		if(hand.get(0).getVal() == table.get(table.size() -2).getVal() || hand.get(1).getVal() == table.get(table.size() -2).getVal())	{
 			return true;
 		}
+	if(hand.get(0).getVal() == hand.get(1).getVal() && table.get(table.size() -1).getVal() > hand.get(0).getVal()&& table.get(table.size() -2).getVal() < hand.get(0).getVal())	{
+			return true;
+	}
 	return false;
 }
 
@@ -393,6 +420,13 @@ public boolean weakPair()	{
 		}
 	}
 	return false;
+}
+
+public boolean overPair()	{
+	if(hand.get(0).getVal() == hand.get(1).getVal() && hand.get(0).getVal() > table.get(table.size() -1).getVal()) {
+		return true;
+	}
+		return false;
 }
 
 private void addSorted(Card card)	{
@@ -408,6 +442,61 @@ private void addSorted(Card card)	{
 		}
 	}
 	cards.add(cards.size(), card);
+}
+
+public boolean nutFlush()	{
+	if(this.handType == 5) {
+		int nut_card_val = 14;
+		for(int i = cards.size() -1; i >=0; i --)	{
+			if(cards.get(i).suit == flush_suit && cards.get(i).val == nut_card_val)	{
+				if(cards.get(i).equals(hand.get(0)) || cards.get(i).equals(hand.get(1)))	{
+					return true;
+				}else {
+					nut_card_val--;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+public boolean nutFlushDraw()	{
+	if(this.flushDraw()) {
+		int nut_card_val = 14;
+		for(int i = cards.size() -1; i >=0; i --)	{
+			if(cards.get(i).suit == flush_suit && cards.get(i).val == nut_card_val)	{
+				if(cards.get(i).equals(hand.get(0)) || cards.get(i).equals(hand.get(1)))	{
+					return true;
+				}else {
+					nut_card_val--;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+public String tablePair()	{
+	HandCalc hand = new HandCalc(table);
+	int val = hand.findSet();
+	if(val != 0)	{
+		if(hand.findFour(val) != 0)	{
+			return "Four of a Kind";
+		}
+		if(hand.findPair() != 0)	{
+			return "Full House";
+		}
+			return "Set";
+	}
+	val = hand.findPair();
+	if(val != 0)	{
+		if(hand.findPair() != 0) {
+			return "Two Pair";
+		}
+		return "Pair";
+	}
+	return " ";
 }
 
 public void resetCards()	{

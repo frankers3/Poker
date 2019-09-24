@@ -51,9 +51,8 @@ public class Game {
 		}
 		return false;
 	}
-	//this is going to look digusting and there isn't really much
-	//i can do about that :(
-	//these vals will be stored in a text file
+//no longer used 
+	/*
 	public int calculatepreflopOdds()	{
 		Card[] myhand;
 		Card[] theirhand;
@@ -79,8 +78,8 @@ public class Game {
 								//every possible community card
 								myhand = new Card[] {myCards.get(0),myCards.get(1),gameDeck.cards.get(i0),gameDeck.cards.get(i1),gameDeck.cards.get(i2),gameDeck.cards.get(i3),gameDeck.cards.get(i4)};
 								theirhand = new Card[] {theirCards.get(0),theirCards.get(1),gameDeck.cards.get(i0),gameDeck.cards.get(i1),gameDeck.cards.get(i2),gameDeck.cards.get(i3),gameDeck.cards.get(i4)};
-								HandCalc mybesthand = new HandCalc(myhand);
-								HandCalc theirbesthand = new HandCalc(theirhand);
+								HandCalc mybesthand = new HandCalc(null,myhand);
+								HandCalc theirbesthand = new HandCalc(null,theirhand);
 								int val = mybesthand.isBetter(theirbesthand);
 								if(val == 1)	{
 									pos++;
@@ -109,7 +108,7 @@ public class Game {
 	}
 	
 	
-	
+	*/
 	public void reset(Card a, Card b, Card c, Card d) {
 		myCards.clear();
 		theirCards.clear();
