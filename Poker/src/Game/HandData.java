@@ -2,15 +2,15 @@ package Game;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-public class HandData {
+import java.util.Set;
+public class HandData	{
 	int combos = 0;
 	//already made hands
 	DecimalFormat format = new DecimalFormat("0.00");
 	public double[] handType = new double[14];
-	
+	ArrayList<Integer> draws = new ArrayList<Integer>();
 	char[] suits = new char[] {'H','D','S','C'};
-	public double[][] drawDoubleUps = new double[4][14];
+	DrawTable drawTable = new DrawTable();
 	double combinations = 0;
 	int handNum = 16;
 	int drawNum = -1;
@@ -58,22 +58,27 @@ public class HandData {
 		Card[] hand;
 		hand = new Card[] {card1,card2};
 		Card[] table;
-		for(int flop_card1 = 0; flop_card1 < deck.cards.size() -2; flop_card1++)	{
-			for(int flop_card2 = flop_card1 + 1; flop_card2 < deck.cards.size() -1; flop_card2++)	{
-				for(int flop_card3= flop_card2 + 1; flop_card3 < deck.cards.size(); flop_card3++)	{
-					table = new Card[]	{deck.cards.get(flop_card1),deck.cards.get(flop_card2),deck.cards.get(flop_card3)};
-					HandCalc handCalc = new HandCalc(table,hand);
-					handNum = 16;
-					drawNum = -1;
-					handCalc.calcHand();
-					mapNumberToHand(handCalc.handType,handCalc,true);
-					checkDraws(handCalc,true);
-					combinations++;
+		if(!suited) {
+			for(int flop_card1 = 0; flop_card1 < deck.cards.size() -2; flop_card1++)	{
+				for(int flop_card2 = flop_card1 + 1; flop_card2 < deck.cards.size() -1; flop_card2++)	{
+					for(int flop_card3= flop_card2 + 1; flop_card3 < deck.cards.size(); flop_card3++)	{
+						table = new Card[]	{deck.cards.get(flop_card1),deck.cards.get(flop_card2),deck.cards.get(flop_card3)};
+						HandCalc handCalc = new HandCalc(table,hand);
+						handNum = 16;
+						
+						handCalc.calcHand();
+						int handNumber = mapNumberToHand(handCalc.handType,handCalc,false);
+						draws.add(handNumber);
+						checkDraws(handCalc,false);
+						drawTable.insertVal(draws);
+						draws.clear();
+						combinations++;
+					}
 				}
 			}
-		}
-		if(suited)
+		}else {
 			twoCardFlush(card1Val,card2Val,deadCards);
+		}
 		dividebyCombinations();
 		
 	}
@@ -82,122 +87,113 @@ public class HandData {
 		
 	}
 	
-	public int mapNumberToHand(int number, HandCalc handCalc, boolean changeData)	{
+	public int mapNumberToHand(int number, HandCalc handCalc, boolean suited)	{
 	
 		if(number >= 6)	{
-			handNum = 0;
-			if(changeData)
-				handType[0]++;
-		}else if(number == 5)	{
+			handNum = 14;
 			
-			handNum = 1;
+				handType[0]++;
+		}else if(number == 5 && suited)	{
+			
+				handNum = 1;
+				handType[1]++;
+			
 		}else if(number == 4)	{
 			handNum = 2;
-			if(changeData)
-				handType[2]++;
+			
+			handType[2]++;
 		}else if(number == 3)	{
 			handNum = 3;
-			if(changeData)
-				handType[3]++;
+			
+			handType[3]++;
 		}else if(number == 2)	{
 			//
 			handNum = 4;
-			if(changeData)
-				handType[4]++;
+			
+			handType[4]++;
 		}else if(number == 1)	{
 			if(handCalc.topPair())	{
 				handNum = 6;
-				if(changeData)
-					handType[6]++;
+				
+				handType[6]++;
 			}else if(handCalc.midPair())	{
 				handNum = 7;
-				if(changeData)
-					handType[7]++;
+				
+				handType[7]++;
 			}else if(handCalc.weakPair())	{
 				handNum = 8;
-				if(changeData)
-					handType[8]++;
+				
+				handType[8]++;
 			}else {
 				if(handCalc.overPair())	{
 					handNum = 5;
-					if(changeData)
-						handType[5]++;
+				
+					handType[5]++;
 					
 					return handNum;
 				}
 				if(handCalc.overCards())	{
-					if(changeData) {
-						handType[13]++;
-						drawDoubleUps[3][0]++;
-					}
+					draws.add(13);
+					handType[13]++;
+						
+					
 				}
 					
 				handNum = 9;	
-				if(changeData)
-					handType[9]++;
+				
+				handType[9]++;
 			
 			}
 		}else {
 			handNum = 9;
-			if(changeData)
-				handType[9]++;
+			handType[9]++;
 		}
 		return handNum;
 	}
 	
 
-	public void checkDraws(HandCalc handCalc, boolean changeData)	{
+	public void checkDraws(HandCalc handCalc, boolean suited)	{
 		
 		if(handCalc.GutShot() && handCalc.handType < 4)	{
-			if(changeData)	{
-				handType[12]++;
-				if(handNum < 9)	{
-					drawDoubleUps[2][handNum]++;
-					
-				}else {
-					int secondDraw = checkSecondDraw(2,handCalc);
-					if(secondDraw > 0)
-						drawDoubleUps[2][secondDraw]++;
-				}
-			}
+			
+				handType[12]++;	
+				draws.add(12);
 		}
 		if(handCalc.OESD() && handCalc.handType < 4)	{
-			if(changeData)	{
+			
 				handType[11]++;
-				if(handNum < 9)	{
-					drawDoubleUps[1][handNum]++;
-					
-				}else {
-				int secondDraw = checkSecondDraw(1,handCalc);
-				if(secondDraw > 0)
-					drawDoubleUps[1][secondDraw]++;
-				}
-			}
+				draws.add(11);
+			
 		}
 		if(handCalc.overCards() && handCalc.handType < 1)	{
-			if(changeData)	{
+			
 				handType[13]++;
-				if(handNum < 9)	{
-					drawDoubleUps[3][handNum]++;
-				}else {
-				int secondDraw = checkSecondDraw(3,handCalc);
-				if(secondDraw > 0)
-					drawDoubleUps[3][secondDraw]++;
-				}
-			}
+				draws.add(13);
+			
+		}
+		
+		if(handCalc.flushDraw() && handCalc.handType < 5 && suited)	{
+			handType[10]++;
+			draws.add(10);
 		}
 		
 	}
 	
 	public void dividebyCombinations()	{
 		int percentConverter = 100;
+		double sum = 0;
 		for(int i = 0; i < handType.length; i++)	{
 			handType[i] = percentConverter*handType[i] / combinations;
-			for(int j = 0; j <4;j++)	{
-				drawDoubleUps[j][i] = percentConverter*drawDoubleUps[j][i] / combinations;
-			}
+			sum+= handType[i];
 		}
-		
+		Set<Integer> keys = drawTable.multidrawTable.keySet();
+		for(int key : keys)	{
+			drawTable.multidrawTable.get(key).dividValue(combinations/percentConverter);
+			drawTable.printKey(key);
+			sum -= drawTable.multidrawTable.get(key).getValue() * (drawTable.multidrawTable.get(key).getDrawNum() - 1);
+			System.out.println(drawTable.multidrawTable.get(key).getValue());
+		}
+		System.out.println(sum);
 		
 	}
 	
@@ -243,27 +239,13 @@ public class HandData {
 						handNum = -1;
 						
 						handCalc.calcHand();
-						mapNumberToHand(handCalc.handType,handCalc,false);
-						//the bug is mapNumber to hands fucking up the numbers
-						//fix make number to hand return an int and then use that int to change the numbers.
-						if(handCalc.handType > 5) {
-							
-						}else if(handCalc.handType == 5)	{
-							
-							handType[1]+=0.25;
-						}else if(handCalc.flushDraw())	{
-							
-							if(handNum > 0)	{
-								
-								drawDoubleUps[0][handNum]+= 0.25;
-							}else {
-								int secondDraw = checkSecondDraw(0,handCalc);
-								if(secondDraw > 0)
-									drawDoubleUps[0][secondDraw]+=0.25;
-								handType[10]+=0.25;
-							}
-						}
+						int handNumber = mapNumberToHand(handCalc.handType,handCalc,true);
+						draws.add(handNumber);
 						
+						checkDraws(handCalc,true);
+						drawTable.insertVal(draws);
+						draws.clear();
+						combinations++;
 						
 					}
 				}
@@ -276,24 +258,33 @@ public class HandData {
 		
 	}
 	
-	private int checkSecondDraw(int firstDrawNum, HandCalc handCalc)	{
-			if(handCalc.GutShot() && handCalc.handType < 4 && firstDrawNum < 2)	{
-			
-				return 12;
+	public double hitPercentage(Filter filter)	{
+		double sum = 0;
+		ArrayList <Integer> noHit = new ArrayList<Integer>();
+		for(int i = 0; i < filter.doesItHit.length;i++)	{
+			if(filter.doesItHit[i] == false)	{
+				noHit.add(i);
+			}
+		}
+		for(int i = 0; i < handType.length; i++)	{
+			if(!noHit.contains(i))
+			sum+= handType[i];
+		}
+		Set<Integer> keys = drawTable.multidrawTable.keySet();
+		for(int key : keys)	{
+			int flag = 0;
+			ArrayList <Integer> hit = drawTable.getDraws(key);
+			for(int hitInt: hit)	{
+				if(noHit.contains(hitInt))	{
+					flag++;
+				}
+			}
 				
-			}
-		
-		if(handCalc.OESD() && handCalc.handType < 4 && firstDrawNum < 1)	{
-				return 11;
+				sum -= drawTable.multidrawTable.get(key).getValue() * Math.max(0, (drawTable.multidrawTable.get(key).getDrawNum() - (flag + 1)));
 			
-			}
-		
-		if(handCalc.overCards() && handCalc.handType < 1 && firstDrawNum < 3)	{
-				return 13;
-				
 			
-			}
-		return 0;
+		}
+		return sum;
 	}
 }
 

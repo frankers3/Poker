@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
@@ -12,7 +14,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import Controller.Controller;
 import javafx.scene.text.Text;
 import javafx.xml.soap.Text;
 import javafx.geometry.Pos;
@@ -27,16 +33,23 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 			for(int j = 0; j < 13;j++)	{
 				if(event.getSource() == hands[i][j])	{
 					toggleHand(i,j);
+					return;
 				}
 			}
 		}
-			
+		for(int i = 0; i < 14; i++)	{
+			if(event.getSource() == dataText.get(i)) {
+				toggleData(i);
+				
+			}
 		}
-	
+			
+	}
+	DecimalFormat format = new DecimalFormat("0.00");
 	Button hands[][];
 	Button deadCards[][];
-	ArrayList<Label> dataText = new ArrayList<Label>();
-	RangeBoard rangeBoard = new RangeBoard();
+	ArrayList<Button> dataText = new ArrayList<Button>();
+	Controller controller = new Controller();
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -86,7 +99,7 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 				}else {
 					//suited hands
 					currentHand.setText((getCardNameFromNumber(j) + getCardNameFromNumber(i) + "u"));
-					currentHand.setStyle("-fx-background-color: #9999ff;-fx-font: 13px Consolas");
+					currentHand.setStyle("-fx-background-color: #66dd66;-fx-font: 13px Consolas");
 				}
 				
 				layout.getChildren().add(currentHand);	
@@ -103,18 +116,30 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 	}
 	
 	public void setUpData(VBox data) {
-		ArrayList<String> percentageData = rangeBoard.getTotalPercentage().getData();
+		ArrayList<String> percentageData = controller.getData();
 		
-		for(int i = 0; i < percentageData.size(); i++) {
+		for(int i = 0; i < percentageData.size() + 1; i++) {
+			if(i != percentageData.size()) {
+				dataText.add(new Button(percentageData.get(i)));
+				dataText.get(i).setOnAction(this);
+				dataText.get(i).setStyle("-fx-font: 15px Consolas; -fx-background-color: #11aa11; ");
+				dataText.get(i).setMinHeight(25);
+				dataText.get(i).setMinWidth(270);
+			}else {
+				dataText.add(new Button("Hit Percentage: "));
+				dataText.get(i).setMinWidth(270);
+				dataText.get(i).setStyle("-fx-font: 18px Consolas; -fx-background-color: #444444");
+			}
 			
-			dataText.add(new Label(percentageData.get(i)));
 			
-			dataText.get(i).setMinHeight(25);
-			dataText.get(i).setStyle("-fx-font: 15px Consolas");
 			
 			dataText.get(i).setTextFill(Color.web("#ffffff", 0.8));
+			data.setSpacing(3);
+			
 			data.getChildren().add(dataText.get(i));
 		}
+			
+		
 		data.setAlignment(Pos.CENTER);
 		
 	}
@@ -137,12 +162,24 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 		return "ERROR";
 	}
 	
+	public void toggleData(int i)	{
+		System.out.println("in toggleData");
+		if(controller.getFilter().doesItHit[i] == true)	{
+			dataText.get(i).setStyle("-fx-font: 15px Consolas; -fx-background-color: #aa1111");
+			controller.getFilter().doesItHit[i]  = false;
+		}else {
+			dataText.get(i).setStyle("-fx-font: 15px Consolas; -fx-background-color: #11aa11");
+			controller.getFilter().doesItHit[i]  = true;
+		}
+		updateHitPercentage();
+	}
+	
 	public void toggleHand(int x,int y)	{
-		if(rangeBoard.getMatrixVal(x, y) == 0)	{
+		if(controller.rangeBoard.getMatrixVal(x, y) == 0)	{
 			
-			rangeBoard.addValueToMatrix(x + 2, y + 2, 100);
+			controller.rangeBoard.addValueToMatrix(x + 2, y + 2, 100);
 			if(x < y) {
-				hands[x][y].setStyle("-fx-background-color: #1111aa;  -fx-text-fill:#ffffff;-fx-font: 13px Consolas ");
+				hands[x][y].setStyle("-fx-background-color: #11aa11;  -fx-text-fill:#ffffff;-fx-font: 13px Consolas ");
 			}else if(x == y) {
 				hands[x][y].setStyle("-fx-background-color: #333333;  -fx-text-fill:#ffffff;-fx-font: 13px Consolas ");
 			}else {
@@ -151,20 +188,22 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 			
 		}else {
 			if(x < y) {
-				hands[x][y].setStyle("-fx-background-color: #9999ff;  -fx-text-fill:#000000;-fx-font: 13px Consolas ");
+				hands[x][y].setStyle("-fx-background-color: #99ff99;  -fx-text-fill:#000000;-fx-font: 13px Consolas ");
 			}else if(x == y) {
 				hands[x][y].setStyle("-fx-background-color: #aaaaaa;  -fx-text-fill:#000000;-fx-font: 13px Consolas ");
 			}else {
 				hands[x][y].setStyle("-fx-background-color: #ff9999;  -fx-text-fill:#000000;-fx-font: 13px Consolas ");
 			}
-			rangeBoard.addValueToMatrix(x + 2, y + 2, 0);
+			controller.rangeBoard.addValueToMatrix(x + 2, y + 2, 0);
 		}
+		
 		updateData();
 		
 	}
 	
 	public void updateData() {
-		ArrayList<String> percentageData = rangeBoard.getTotalPercentage().getData();
+		
+		ArrayList<String> percentageData = controller.getData();
 		
 		for(int i = 0; i < percentageData.size(); i++) {
 			
@@ -172,6 +211,7 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 			
 			
 		}
+			updateHitPercentage();
 	}
 	
 	public void setUpDeadCards(Button[][] deadCards,GridPane deadCardsLayout)	{
@@ -201,6 +241,10 @@ public class AppView extends Application implements EventHandler<ActionEvent>{
 		deadCardsLayout.setHgap(3);
 		deadCardsLayout.setVgap(3);
 		
+	}
+	
+	private void updateHitPercentage()	{
+		dataText.get(dataText.size() - 1).setText("Hit Percentage: "+format.format(controller.getHitPercentage()) +"%");
 	}
 	
 	private char getSuitFromNumber(int number)	{

@@ -419,6 +419,9 @@ public boolean weakPair()	{
 			}
 		}
 	}
+	if(hand.get(0).getVal() == hand.get(1).getVal() && table.get(table.size() -2).getVal() > hand.get(0).getVal())	{
+		return true;
+}
 	return false;
 }
 

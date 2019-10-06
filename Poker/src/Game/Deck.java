@@ -113,6 +113,13 @@ public void removeCardfromDeck(char suit, int val)	{
 	}
 }
 		
-	
+public boolean isInDeck(Card card)	{
+	for(Card checker : cards)	{
+		if(checker.equals(card))	{
+			return true;
+		}
+	}
+	return false;
+}
 	
 }
